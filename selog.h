@@ -27,6 +27,7 @@ void log_print_time(int loglevel, int);
 
 void log_setup_default(void);
 
+__attribute__((format(printf, 5, 6)))
 void _log(int loglevel, const char *file, int line, const char *function, const char *fmt, ...);
 
 #ifdef __cplusplus

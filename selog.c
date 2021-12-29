@@ -68,7 +68,7 @@ static void log_to_output(struct message *m)
 	if(l->print_function)
 		fprintf(l->fp, "%s%s%s %s()->%s:%d:%s ", time_buff, color, l->prefix, m->function, m->file, m->line, color_reset);
 	else
-		fprintf(l->fp, "%s%s%s%s: ", time_buff, color, l->prefix, color_reset);
+		fprintf(l->fp, "%s%s%s:%s ", time_buff, color, l->prefix, color_reset);
 
 	// Print message
 	vfprintf(l->fp, m->fmt, m->args);
