@@ -18,6 +18,7 @@
 #define SELOG_H
 
 #include <stdio.h>
+#include <stdarg.h>
 
 enum loglevels {
 	LOG_TRACE,
@@ -52,6 +53,7 @@ void log_setup_default(void);
 
 __attribute__((format(printf, 5, 6)))
 void _log(int loglevel, const char *file, int line, const char *function, const char *fmt, ...);
+void _vlog(int loglevel, const char *file, int line, const char *function, const char *fmt, va_list args);
 
 #ifdef __cplusplus
 }

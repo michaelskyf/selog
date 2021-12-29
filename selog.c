@@ -16,7 +16,6 @@
 */
 #include <selog/selog.h>
 #include <stdio.h>
-#include <stdarg.h>
 #include <assert.h>
 #include <time.h>
 #include <unistd.h>
@@ -255,4 +254,33 @@ void _log(int loglevel, const char *file, int line, const char *function, const 
 	va_start(m.args, fmt);
 	log_to_output(&m);
 	va_end(m.args);
+}
+
+void _vlog(int loglevel, const char *file, int line, const char *function, const char *fmt, va_list args)
+{
+	assert(loglevel >= 0 && loglevel <= LOG_ENUM_LENGTH);
+
+	struct loglevel *l = &loglevels[loglevel];
+
+	if(!l->print_enabled)
+		return;
+
+	struct message m = {
+		.fmt = fmt,
+		.file = file,
+		.line = line,
+		.function = function,
+		.loglevel = l,
+	};
+	time_t t = time(NULL);
+	if(l->time_relation == LOG_TIME_EPOCH)
+	{
+		m.time = localtime(&t);
+	} else {
+		t -= init_time;
+		m.time = gmtime(&t);
+	}
+
+	va_copy(m.args, args);
+	log_to_output(&m);
 }
