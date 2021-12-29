@@ -66,7 +66,6 @@ void _log(int loglevel, const char *file, int line, const char *function, const 
 #define LOG_COLOR_BOLD_CYAN 		"\033[1;36m"
 #define LOG_COLOR_BOLD_WHITE 		"\033[1;37m"
 
-#define LOG_COLOR_NONE 		""
 #define LOG_COLOR_RESET		"\033[0m"
 
 

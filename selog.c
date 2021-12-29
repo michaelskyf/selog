@@ -142,7 +142,7 @@ void log_setup_default(void)
 {
 	// Trace
 	log_set_stream(LOG_TRACE, stdout);
-	log_set_color(LOG_TRACE, LOG_COLOR_NONE);
+	log_set_color(LOG_TRACE, LOG_COLOR_RESET);
 	log_set_prefix(LOG_TRACE, "[TRACE]");
 	log_set_time_fmt(LOG_TRACE, "(%H:%M:%S)");
 	log_print_function(LOG_TRACE, 0);
