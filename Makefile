@@ -7,7 +7,6 @@ ifneq ("$(origin CC)", "commandline")
 endif
 files := test.c selog.c
 CFLAGS := -Wall -Wextra -Wpedantic -g -Os
-CFLAGS += -Iinclude
 
 all: $(PROJECT_NAME)
 
