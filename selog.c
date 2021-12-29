@@ -44,7 +44,7 @@ struct loglevel {
 	int print_time;
 };
 
-static struct loglevel loglevels[LOG_ENUM_LENGTH + 1];
+static struct loglevel loglevels[SELOG_ENUM_LENGTH + 1];
 
 static void log_to_output(struct message *m)
 {
@@ -56,7 +56,7 @@ static void log_to_output(struct message *m)
 	if(l->print_color)
 	{
 		color = l->color;
-		color_reset = LOG_COLOR_RESET;
+		color_reset = SELOG_COLOR_RESET;
 	} else {
 		color = "";
 		color_reset = "";
@@ -81,65 +81,65 @@ static void log_to_output(struct message *m)
 	fflush(l->fp);
 }
 
-void log_set_stream(int loglevel, FILE *stream)
+void selog_set_stream(int loglevel, FILE *stream)
 {
-	assert(loglevel >= 0 && loglevel <= LOG_ENUM_LENGTH);
+	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
 	struct loglevel *l = &loglevels[loglevel];
 	l->fp = stream;
 }
 
-void log_set_color(int loglevel, const char *color)
+void selog_set_color(int loglevel, const char *color)
 {
-	assert(loglevel >= 0 && loglevel <= LOG_ENUM_LENGTH);
+	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
 	struct loglevel *l = &loglevels[loglevel];
 	l->color = color;
 }
 
-void log_set_prefix(int loglevel, const char *prefix)
+void selog_set_prefix(int loglevel, const char *prefix)
 {
-	assert(loglevel >= 0 && loglevel <= LOG_ENUM_LENGTH);
+	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
 	struct loglevel *l = &loglevels[loglevel];
 	l->prefix = prefix;
 }
 
-void log_set_time_fmt(int loglevel, const char *time_fmt)
+void selog_set_time_fmt(int loglevel, const char *time_fmt)
 {
-	assert(loglevel >= 0 && loglevel <= LOG_ENUM_LENGTH);
+	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
 	struct loglevel *l = &loglevels[loglevel];
 	l->time_fmt = time_fmt;
 }
 
-void log_set_time_relation(int loglevel, int set)
+void selog_set_time_relation(int loglevel, int set)
 {
-	assert(loglevel >= 0 && loglevel <= LOG_ENUM_LENGTH);
+	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
 	struct loglevel *l = &loglevels[loglevel];
 	l->time_relation = set;
 }
 
-void log_print_enable(int loglevel, int set)
+void selog_print_enable(int loglevel, int set)
 {
-	assert(loglevel >= 0 && loglevel <= LOG_ENUM_LENGTH);
+	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
 	struct loglevel *l = &loglevels[loglevel];
 	l->print_enabled = set;
 }
 
-void log_print_function(int loglevel, int set)
+void selog_print_function(int loglevel, int set)
 {
-	assert(loglevel >= 0 && loglevel <= LOG_ENUM_LENGTH);
+	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
 	struct loglevel *l = &loglevels[loglevel];
 	l->print_function = set;
 }
 
-void log_print_color(int loglevel, int set)
+void selog_print_color(int loglevel, int set)
 {
-	assert(loglevel >= 0 && loglevel <= LOG_ENUM_LENGTH);
+	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
 	struct loglevel *l = &loglevels[loglevel];
 
@@ -153,82 +153,82 @@ void log_print_color(int loglevel, int set)
 	l->print_color = set;
 }
 
-void log_print_time(int loglevel, int set)
+void selog_print_time(int loglevel, int set)
 {
-	assert(loglevel >= 0 && loglevel <= LOG_ENUM_LENGTH);
+	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
 	struct loglevel *l = &loglevels[loglevel];
 	l->print_time = set;
 }
 
-void log_setup_default(void)
+void selog_setup_default(void)
 {
 	init_time = time(NULL);
 	// Trace
-	log_set_stream(LOG_TRACE, stdout);
-	log_set_color(LOG_TRACE, LOG_COLOR_RESET);
-	log_set_prefix(LOG_TRACE, "[TRACE]");
-	log_set_time_fmt(LOG_TRACE, "(%H:%M:%S)");
-	log_set_time_relation(LOG_TRACE, LOG_TIME_EPOCH);
-	log_print_enable(LOG_TRACE, 1);
-	log_print_function(LOG_TRACE, 0);
-	log_print_color(LOG_TRACE, 0);
-	log_print_time(LOG_TRACE, 1);
+	selog_set_stream(SELOG_TRACE, stdout);
+	selog_set_color(SELOG_TRACE, SELOG_COLOR_RESET);
+	selog_set_prefix(SELOG_TRACE, "[TRACE]");
+	selog_set_time_fmt(SELOG_TRACE, "(%H:%M:%S)");
+	selog_set_time_relation(SELOG_TRACE, SELOG_TIME_EPOCH);
+	selog_print_enable(SELOG_TRACE, 1);
+	selog_print_function(SELOG_TRACE, 0);
+	selog_print_color(SELOG_TRACE, 0);
+	selog_print_time(SELOG_TRACE, 1);
 	// Debug
-	log_set_stream(LOG_DEBUG, stdout);
-	log_set_color(LOG_DEBUG, LOG_COLOR_GREEN);
-	log_set_prefix(LOG_DEBUG, "[DEBUG]");
-	log_set_time_fmt(LOG_DEBUG, "(%H:%M:%S)");
-	log_set_time_relation(LOG_DEBUG, LOG_TIME_EPOCH);
-	log_print_enable(LOG_DEBUG, 1);
-	log_print_function(LOG_DEBUG, 1);
-	log_print_color(LOG_DEBUG, 1);
-	log_print_time(LOG_DEBUG, 1);
+	selog_set_stream(SELOG_DEBUG, stdout);
+	selog_set_color(SELOG_DEBUG, SELOG_COLOR_GREEN);
+	selog_set_prefix(SELOG_DEBUG, "[DEBUG]");
+	selog_set_time_fmt(SELOG_DEBUG, "(%H:%M:%S)");
+	selog_set_time_relation(SELOG_DEBUG, SELOG_TIME_EPOCH);
+	selog_print_enable(SELOG_DEBUG, 1);
+	selog_print_function(SELOG_DEBUG, 1);
+	selog_print_color(SELOG_DEBUG, 1);
+	selog_print_time(SELOG_DEBUG, 1);
 	// Info
-	log_set_stream(LOG_INFO, stdout);
-	log_set_color(LOG_INFO, LOG_COLOR_BLUE);
-	log_set_prefix(LOG_INFO, "[INFO]");
-	log_set_time_fmt(LOG_INFO, "(%H:%M:%S)");
-	log_set_time_relation(LOG_INFO, LOG_TIME_EPOCH);
-	log_print_enable(LOG_INFO, 1);
-	log_print_function(LOG_INFO, 0);
-	log_print_color(LOG_INFO, 1);
-	log_print_time(LOG_INFO, 1);
+	selog_set_stream(SELOG_INFO, stdout);
+	selog_set_color(SELOG_INFO, SELOG_COLOR_BLUE);
+	selog_set_prefix(SELOG_INFO, "[INFO]");
+	selog_set_time_fmt(SELOG_INFO, "(%H:%M:%S)");
+	selog_set_time_relation(SELOG_INFO, SELOG_TIME_EPOCH);
+	selog_print_enable(SELOG_INFO, 1);
+	selog_print_function(SELOG_INFO, 0);
+	selog_print_color(SELOG_INFO, 1);
+	selog_print_time(SELOG_INFO, 1);
 	// Warning
-	log_set_stream(LOG_WARNING, stderr);
-	log_set_color(LOG_WARNING, LOG_COLOR_YELLOW);
-	log_set_prefix(LOG_WARNING, "[WARNING]");
-	log_set_time_fmt(LOG_WARNING, "(%H:%M:%S)");
-	log_set_time_relation(LOG_WARNING, LOG_TIME_EPOCH);
-	log_print_enable(LOG_WARNING, 1);
-	log_print_function(LOG_WARNING, 1);
-	log_print_color(LOG_WARNING, 1);
-	log_print_time(LOG_WARNING, 1);
+	selog_set_stream(SELOG_WARNING, stderr);
+	selog_set_color(SELOG_WARNING, SELOG_COLOR_YELLOW);
+	selog_set_prefix(SELOG_WARNING, "[WARNING]");
+	selog_set_time_fmt(SELOG_WARNING, "(%H:%M:%S)");
+	selog_set_time_relation(SELOG_WARNING, SELOG_TIME_EPOCH);
+	selog_print_enable(SELOG_WARNING, 1);
+	selog_print_function(SELOG_WARNING, 1);
+	selog_print_color(SELOG_WARNING, 1);
+	selog_print_time(SELOG_WARNING, 1);
 	// Error
-	log_set_stream(LOG_ERROR, stderr);
-	log_set_color(LOG_ERROR, LOG_COLOR_RED);
-	log_set_prefix(LOG_ERROR, "[ERROR]");
-	log_set_time_fmt(LOG_ERROR, "(%H:%M:%S)");
-	log_set_time_relation(LOG_ERROR, LOG_TIME_EPOCH);
-	log_print_enable(LOG_ERROR, 1);
-	log_print_function(LOG_ERROR, 1);
-	log_print_color(LOG_ERROR, 1);
-	log_print_time(LOG_ERROR, 1);
+	selog_set_stream(SELOG_ERROR, stderr);
+	selog_set_color(SELOG_ERROR, SELOG_COLOR_RED);
+	selog_set_prefix(SELOG_ERROR, "[ERROR]");
+	selog_set_time_fmt(SELOG_ERROR, "(%H:%M:%S)");
+	selog_set_time_relation(SELOG_ERROR, SELOG_TIME_EPOCH);
+	selog_print_enable(SELOG_ERROR, 1);
+	selog_print_function(SELOG_ERROR, 1);
+	selog_print_color(SELOG_ERROR, 1);
+	selog_print_time(SELOG_ERROR, 1);
 	// Fatal
-	log_set_stream(LOG_FATAL, stderr);
-	log_set_color(LOG_FATAL, LOG_COLOR_BOLD_RED);
-	log_set_prefix(LOG_FATAL, "[FATAL]");
-	log_set_time_fmt(LOG_FATAL, "(%H:%M:%S)");
-	log_set_time_relation(LOG_FATAL, LOG_TIME_EPOCH);
-	log_print_enable(LOG_FATAL, 1);
-	log_print_function(LOG_FATAL, 1);
-	log_print_color(LOG_FATAL, 1);
-	log_print_time(LOG_FATAL, 1);
+	selog_set_stream(SELOG_FATAL, stderr);
+	selog_set_color(SELOG_FATAL, SELOG_COLOR_BOLD_RED);
+	selog_set_prefix(SELOG_FATAL, "[FATAL]");
+	selog_set_time_fmt(SELOG_FATAL, "(%H:%M:%S)");
+	selog_set_time_relation(SELOG_FATAL, SELOG_TIME_EPOCH);
+	selog_print_enable(SELOG_FATAL, 1);
+	selog_print_function(SELOG_FATAL, 1);
+	selog_print_color(SELOG_FATAL, 1);
+	selog_print_time(SELOG_FATAL, 1);
 }
 
-void _log(int loglevel, const char *file, int line, const char *function, const char *fmt, ...)
+void selog_printf(int loglevel, const char *file, int line, const char *function, const char *fmt, ...)
 {
-	assert(loglevel >= 0 && loglevel <= LOG_ENUM_LENGTH);
+	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
 	struct loglevel *l = &loglevels[loglevel];
 
@@ -243,7 +243,7 @@ void _log(int loglevel, const char *file, int line, const char *function, const 
 		.loglevel = l,
 	};
 	time_t t = time(NULL);
-	if(l->time_relation == LOG_TIME_EPOCH)
+	if(l->time_relation == SELOG_TIME_EPOCH)
 	{
 		m.time = localtime(&t);
 	} else {
@@ -256,9 +256,9 @@ void _log(int loglevel, const char *file, int line, const char *function, const 
 	va_end(m.args);
 }
 
-void _vlog(int loglevel, const char *file, int line, const char *function, const char *fmt, va_list args)
+void selog_vprintf(int loglevel, const char *file, int line, const char *function, const char *fmt, va_list args)
 {
-	assert(loglevel >= 0 && loglevel <= LOG_ENUM_LENGTH);
+	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
 	struct loglevel *l = &loglevels[loglevel];
 
@@ -273,7 +273,7 @@ void _vlog(int loglevel, const char *file, int line, const char *function, const
 		.loglevel = l,
 	};
 	time_t t = time(NULL);
-	if(l->time_relation == LOG_TIME_EPOCH)
+	if(l->time_relation == SELOG_TIME_EPOCH)
 	{
 		m.time = localtime(&t);
 	} else {

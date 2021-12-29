@@ -2,7 +2,7 @@
 
 int main()
 {
-	log_setup_default();
+	selog_setup_default();
 
 	log_trace("test");
 	log_debug("test");
