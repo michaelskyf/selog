@@ -19,6 +19,7 @@
 #include <stdarg.h>
 #include <assert.h>
 #include <time.h>
+#include <unistd.h>
 
 static time_t init_time;
 
@@ -141,12 +142,15 @@ void log_print_color(int loglevel, int set)
 {
 	assert(loglevel >= 0 && loglevel <= LOG_ENUM_LENGTH);
 
+	struct loglevel *l = &loglevels[loglevel];
+
+	if(!isatty(fileno(l->fp)))
+		set = 0;
+
 #ifdef __WIN32__
 	set = 0; // Printing colors on Windows is not supported
 #endif
-	// TODO: Check if output stream supports color
 
-	struct loglevel *l = &loglevels[loglevel];
 	l->print_color = set;
 }
 
