@@ -14,7 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with selog. If not, see <https://www.gnu.org/licenses/>.
 */
-#include "selog.h"
+#include <selog/selog.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <assert.h>

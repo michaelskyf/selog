@@ -1,0 +1,6 @@
+-I
+include
+-Wall
+-Wundef
+-Wextra
+-Wpedantic
