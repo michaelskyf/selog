@@ -49,18 +49,14 @@ static void log_to_output(struct message *m)
 	const char *color;
 	const char *color_reset;
 
-#ifndef __WIN32__
 	if(l->print_color)
 	{
 		color = l->color;
 		color_reset = LOG_COLOR_RESET;
 	} else {
-#endif
 		color = "";
 		color_reset = "";
-#ifndef __WIN32__
 	}
-#endif
 
 	char time_buff[16];
 	if(l->print_time)
@@ -124,6 +120,11 @@ void log_print_function(int loglevel, int set)
 void log_print_color(int loglevel, int set)
 {
 	assert(loglevel >= 0 && loglevel <= LOG_ENUM_LENGTH);
+
+#ifdef __WIN32__
+	set = 0; // Printing colors on Windows is not supported
+#endif
+	// TODO: Check if output stream supports color
 
 	struct loglevel *l = &loglevels[loglevel];
 	l->print_color = set;
