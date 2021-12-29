@@ -35,6 +35,7 @@ struct loglevel {
 	const char *color;
 	const char *prefix;
 	const char *time_fmt;
+	int print_enabled;
 	int print_function;
 	int print_color;
 	int print_time;
@@ -45,6 +46,9 @@ static struct loglevel loglevels[LOG_ENUM_LENGTH + 1];
 static void log_to_output(struct message *m)
 {
 	struct loglevel *l = &loglevels[m->loglevel];
+
+	if(!l->print_enabled)
+		return;
 
 	const char *color;
 	const char *color_reset;
@@ -109,6 +113,14 @@ void log_set_time_fmt(int loglevel, const char *time_fmt)
 	l->time_fmt = time_fmt;
 }
 
+void log_print_enable(int loglevel, int set)
+{
+	assert(loglevel >= 0 && loglevel <= LOG_ENUM_LENGTH);
+
+	struct loglevel *l = &loglevels[loglevel];
+	l->print_enabled = set;
+}
+
 void log_print_function(int loglevel, int set)
 {
 	assert(loglevel >= 0 && loglevel <= LOG_ENUM_LENGTH);
@@ -145,6 +157,7 @@ void log_setup_default(void)
 	log_set_color(LOG_TRACE, LOG_COLOR_RESET);
 	log_set_prefix(LOG_TRACE, "[TRACE]");
 	log_set_time_fmt(LOG_TRACE, "(%H:%M:%S)");
+	log_print_enable(LOG_TRACE, 1);
 	log_print_function(LOG_TRACE, 0);
 	log_print_color(LOG_TRACE, 0);
 	log_print_time(LOG_TRACE, 1);
@@ -153,6 +166,7 @@ void log_setup_default(void)
 	log_set_color(LOG_DEBUG, LOG_COLOR_GREEN);
 	log_set_prefix(LOG_DEBUG, "[DEBUG]");
 	log_set_time_fmt(LOG_DEBUG, "(%H:%M:%S)");
+	log_print_enable(LOG_DEBUG, 1);
 	log_print_function(LOG_DEBUG, 1);
 	log_print_color(LOG_DEBUG, 1);
 	log_print_time(LOG_DEBUG, 1);
@@ -161,6 +175,7 @@ void log_setup_default(void)
 	log_set_color(LOG_INFO, LOG_COLOR_BLUE);
 	log_set_prefix(LOG_INFO, "[INFO]");
 	log_set_time_fmt(LOG_INFO, "(%H:%M:%S)");
+	log_print_enable(LOG_INFO, 1);
 	log_print_function(LOG_INFO, 0);
 	log_print_color(LOG_INFO, 1);
 	log_print_time(LOG_INFO, 1);
@@ -169,6 +184,7 @@ void log_setup_default(void)
 	log_set_color(LOG_WARNING, LOG_COLOR_YELLOW);
 	log_set_prefix(LOG_WARNING, "[WARNING]");
 	log_set_time_fmt(LOG_WARNING, "(%H:%M:%S)");
+	log_print_enable(LOG_WARNING, 1);
 	log_print_function(LOG_WARNING, 1);
 	log_print_color(LOG_WARNING, 1);
 	log_print_time(LOG_WARNING, 1);
@@ -177,6 +193,7 @@ void log_setup_default(void)
 	log_set_color(LOG_ERROR, LOG_COLOR_RED);
 	log_set_prefix(LOG_ERROR, "[ERROR]");
 	log_set_time_fmt(LOG_ERROR, "(%H:%M:%S)");
+	log_print_enable(LOG_ERROR, 1);
 	log_print_function(LOG_ERROR, 1);
 	log_print_color(LOG_ERROR, 1);
 	log_print_time(LOG_ERROR, 1);
@@ -185,6 +202,7 @@ void log_setup_default(void)
 	log_set_color(LOG_FATAL, LOG_COLOR_BOLD_RED);
 	log_set_prefix(LOG_FATAL, "[FATAL]");
 	log_set_time_fmt(LOG_FATAL, "(%H:%M:%S)");
+	log_print_enable(LOG_FATAL, 1);
 	log_print_function(LOG_FATAL, 1);
 	log_print_color(LOG_FATAL, 1);
 	log_print_time(LOG_FATAL, 1);
