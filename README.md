@@ -1,5 +1,5 @@
 # selog
-## _Simple Extensible LOGger written in C_
+## _Simple Extensible LOGger library written in C_
 
 ## Testing
 If You want to test how selog works, simply run ```make run```
@@ -16,3 +16,6 @@ To add selog to Your project, include _selog.h_ and compile and link _selog.c_ w
 - Windows (tested on wine)
 - BSD
 - MacOS (untested)
+
+## Information
+- Conforms to std=c99 and up
