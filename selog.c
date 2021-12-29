@@ -35,9 +35,9 @@ struct loglevel {
 	const char *color;
 	const char *prefix;
 	const char *time_fmt;
-	_Bool print_function;
-	_Bool print_color;
-	_Bool print_time;
+	int print_function;
+	int print_color;
+	int print_time;
 };
 
 static struct loglevel loglevels[LOG_ENUM_LENGTH + 1];
@@ -113,7 +113,7 @@ void log_set_time_fmt(int loglevel, const char *time_fmt)
 	l->time_fmt = time_fmt;
 }
 
-void log_print_function(int loglevel, _Bool set)
+void log_print_function(int loglevel, int set)
 {
 	assert(loglevel >= 0 && loglevel <= LOG_ENUM_LENGTH);
 
@@ -121,7 +121,7 @@ void log_print_function(int loglevel, _Bool set)
 	l->print_function = set;
 }
 
-void log_print_color(int loglevel, _Bool set)
+void log_print_color(int loglevel, int set)
 {
 	assert(loglevel >= 0 && loglevel <= LOG_ENUM_LENGTH);
 
@@ -129,7 +129,7 @@ void log_print_color(int loglevel, _Bool set)
 	l->print_color = set;
 }
 
-void log_print_time(int loglevel, _Bool set)
+void log_print_time(int loglevel, int set)
 {
 	assert(loglevel >= 0 && loglevel <= LOG_ENUM_LENGTH);
 
@@ -196,11 +196,11 @@ void _log(int loglevel, const char *file, int line, const char *function, const 
 	time_t t = time(NULL);
 
 	struct message m = {
-		.loglevel = loglevel,
+		.fmt = fmt,
 		.file = file,
 		.line = line,
 		.function = function,
-		.fmt = fmt,
+		.loglevel = loglevel,
 		.time = localtime(&t),
 	};
 

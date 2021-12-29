@@ -13,17 +13,25 @@ enum loglevels {
 	LOG_ENUM_LENGTH = LOG_FATAL
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void log_set_stream(int loglevel, FILE *stream);
 void log_set_color(int loglevel, const char *color);
 void log_set_prefix(int loglevel, const char *prefix);
 void log_set_time_fmt(int loglevel, const char *time_fmt);
-void log_print_function(int loglevel, _Bool);
-void log_print_color(int loglevel, _Bool);
-void log_print_time(int loglevel, _Bool);
+void log_print_function(int loglevel, int);
+void log_print_color(int loglevel, int);
+void log_print_time(int loglevel, int);
 
 void log_setup_default(void);
 
 void _log(int loglevel, const char *file, int line, const char *function, const char *fmt, ...);
+
+#ifdef __cplusplus
+}
+#endif
 
 #define LOG_COLOR_RED 		"\033[0;31m"
 #define LOG_COLOR_GREEN 	"\033[0;32m"

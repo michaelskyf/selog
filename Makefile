@@ -2,11 +2,11 @@ PROJECT_NAME := test
 
 MAKEFLAGS += -rR
 
-ifndef CC
+ifneq ("$(origin CC)", "commandline")
   CC := gcc
 endif
 files := test.c selog.c
-CFLAGS := -Wall -Werror -Wextra -Wpedantic -g -Os
+CFLAGS := -Wall -Wextra -Wpedantic -g -Os
 
 all: $(PROJECT_NAME)
 
