@@ -20,13 +20,15 @@
 #include <assert.h>
 #include <time.h>
 
+static time_t init_time;
+
 struct message {
 	const char *fmt;
 	va_list args;
 	const char *file;
 	int line;
 	const char *function;
-	int loglevel;
+	struct loglevel *loglevel;
 	struct tm *time;
 };
 
@@ -35,6 +37,7 @@ struct loglevel {
 	const char *color;
 	const char *prefix;
 	const char *time_fmt;
+	int time_relation;
 	int print_enabled;
 	int print_function;
 	int print_color;
@@ -45,10 +48,7 @@ static struct loglevel loglevels[LOG_ENUM_LENGTH + 1];
 
 static void log_to_output(struct message *m)
 {
-	struct loglevel *l = &loglevels[m->loglevel];
-
-	if(!l->print_enabled)
-		return;
+	struct loglevel *l = m->loglevel;
 
 	const char *color;
 	const char *color_reset;
@@ -113,6 +113,14 @@ void log_set_time_fmt(int loglevel, const char *time_fmt)
 	l->time_fmt = time_fmt;
 }
 
+void log_set_time_relation(int loglevel, int set)
+{
+	assert(loglevel >= 0 && loglevel <= LOG_ENUM_LENGTH);
+
+	struct loglevel *l = &loglevels[loglevel];
+	l->time_relation = set;
+}
+
 void log_print_enable(int loglevel, int set)
 {
 	assert(loglevel >= 0 && loglevel <= LOG_ENUM_LENGTH);
@@ -152,11 +160,13 @@ void log_print_time(int loglevel, int set)
 
 void log_setup_default(void)
 {
+	init_time = time(NULL);
 	// Trace
 	log_set_stream(LOG_TRACE, stdout);
 	log_set_color(LOG_TRACE, LOG_COLOR_RESET);
 	log_set_prefix(LOG_TRACE, "[TRACE]");
 	log_set_time_fmt(LOG_TRACE, "(%H:%M:%S)");
+	log_set_time_relation(LOG_TRACE, LOG_TIME_EPOCH);
 	log_print_enable(LOG_TRACE, 1);
 	log_print_function(LOG_TRACE, 0);
 	log_print_color(LOG_TRACE, 0);
@@ -166,6 +176,7 @@ void log_setup_default(void)
 	log_set_color(LOG_DEBUG, LOG_COLOR_GREEN);
 	log_set_prefix(LOG_DEBUG, "[DEBUG]");
 	log_set_time_fmt(LOG_DEBUG, "(%H:%M:%S)");
+	log_set_time_relation(LOG_DEBUG, LOG_TIME_EPOCH);
 	log_print_enable(LOG_DEBUG, 1);
 	log_print_function(LOG_DEBUG, 1);
 	log_print_color(LOG_DEBUG, 1);
@@ -175,6 +186,7 @@ void log_setup_default(void)
 	log_set_color(LOG_INFO, LOG_COLOR_BLUE);
 	log_set_prefix(LOG_INFO, "[INFO]");
 	log_set_time_fmt(LOG_INFO, "(%H:%M:%S)");
+	log_set_time_relation(LOG_INFO, LOG_TIME_EPOCH);
 	log_print_enable(LOG_INFO, 1);
 	log_print_function(LOG_INFO, 0);
 	log_print_color(LOG_INFO, 1);
@@ -184,6 +196,7 @@ void log_setup_default(void)
 	log_set_color(LOG_WARNING, LOG_COLOR_YELLOW);
 	log_set_prefix(LOG_WARNING, "[WARNING]");
 	log_set_time_fmt(LOG_WARNING, "(%H:%M:%S)");
+	log_set_time_relation(LOG_WARNING, LOG_TIME_EPOCH);
 	log_print_enable(LOG_WARNING, 1);
 	log_print_function(LOG_WARNING, 1);
 	log_print_color(LOG_WARNING, 1);
@@ -193,6 +206,7 @@ void log_setup_default(void)
 	log_set_color(LOG_ERROR, LOG_COLOR_RED);
 	log_set_prefix(LOG_ERROR, "[ERROR]");
 	log_set_time_fmt(LOG_ERROR, "(%H:%M:%S)");
+	log_set_time_relation(LOG_ERROR, LOG_TIME_EPOCH);
 	log_print_enable(LOG_ERROR, 1);
 	log_print_function(LOG_ERROR, 1);
 	log_print_color(LOG_ERROR, 1);
@@ -202,6 +216,7 @@ void log_setup_default(void)
 	log_set_color(LOG_FATAL, LOG_COLOR_BOLD_RED);
 	log_set_prefix(LOG_FATAL, "[FATAL]");
 	log_set_time_fmt(LOG_FATAL, "(%H:%M:%S)");
+	log_set_time_relation(LOG_FATAL, LOG_TIME_EPOCH);
 	log_print_enable(LOG_FATAL, 1);
 	log_print_function(LOG_FATAL, 1);
 	log_print_color(LOG_FATAL, 1);
@@ -212,16 +227,26 @@ void _log(int loglevel, const char *file, int line, const char *function, const 
 {
 	assert(loglevel >= 0 && loglevel <= LOG_ENUM_LENGTH);
 
-	time_t t = time(NULL);
+	struct loglevel *l = &loglevels[loglevel];
+
+	if(!l->print_enabled)
+		return;
 
 	struct message m = {
 		.fmt = fmt,
 		.file = file,
 		.line = line,
 		.function = function,
-		.loglevel = loglevel,
-		.time = localtime(&t),
+		.loglevel = l,
 	};
+	time_t t = time(NULL);
+	if(l->time_relation == LOG_TIME_EPOCH)
+	{
+		m.time = localtime(&t);
+	} else {
+		t -= init_time;
+		m.time = gmtime(&t);
+	}
 
 	va_start(m.args, fmt);
 	log_to_output(&m);

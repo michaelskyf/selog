@@ -29,6 +29,11 @@ enum loglevels {
 	LOG_ENUM_LENGTH = LOG_FATAL
 };
 
+enum time_relations {
+	LOG_TIME_EPOCH,
+	LOG_TIME_INIT
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -37,6 +42,7 @@ void log_set_stream(int loglevel, FILE *stream);
 void log_set_color(int loglevel, const char *color);
 void log_set_prefix(int loglevel, const char *prefix);
 void log_set_time_fmt(int loglevel, const char *time_fmt);
+void log_set_time_relation(int loglevel, int);
 void log_print_enable(int loglevel, int);
 void log_print_function(int loglevel, int);
 void log_print_color(int loglevel, int);
