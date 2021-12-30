@@ -19,3 +19,6 @@ To add selog to Your project, include _selog.h_ and compile and link _selog.c_ w
 
 ## Information
 - Conforms to std=c99 and up
+
+## See also
+- [GTEngine](https://github.com/michaelskyf/GTEngine) - project that uses selog [here](https://github.com/michaelskyf/GTEngine/tree/master/lib)
