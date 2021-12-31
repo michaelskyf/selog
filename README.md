@@ -2,12 +2,12 @@
 ## _Simple Extensible LOGging library written in C_
 
 ## Features
-- simple and extensible
-- thread safe
-- portable
+- Simple and extensible
+- Thread safe
+- Portable
 
 ## Testing
-If You want to test how selog works, simply run `make run`
+If You want to see how selog works, simply run `make run`
 
 ## Instructions
 To add selog to Your project, include _selog.h_ and compile and link _selog.c_ with Your executable

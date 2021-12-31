@@ -25,12 +25,7 @@
 #include <pthread.h>
 #endif
 
-static time_t init_time;
-#ifdef __WIN32__
-static CRITICAL_SECTION mutex;
-#else
-static pthread_mutex_t mutex;
-#endif
+/* Structs */
 
 struct message {
 	const char *fmt;
@@ -42,7 +37,22 @@ struct message {
 	struct tm *time;
 };
 
+/* Variables */
+
 static struct loglevel loglevels[SELOG_ENUM_LENGTH + 1];
+static time_t init_time;
+#ifdef __WIN32__
+static CRITICAL_SECTION mutex;
+#else
+static pthread_mutex_t mutex;
+#endif
+
+/* Declarations */
+static void lock(void);
+static void unlock(void);
+static int log_to_output(struct message *m);
+
+/* Definitions */
 
 static void lock()
 {
@@ -64,11 +74,12 @@ static void unlock()
 
 static int log_to_output(struct message *m)
 {
-	/* Printed characters */
 	int ret = 0;
-	/* If error is set, return error instead of printed characters */
 	int error = 0;
 	int size;
+
+	char time_buff[16];
+
 	const char *color;
 	const char *color_reset;
 
@@ -83,7 +94,6 @@ static int log_to_output(struct message *m)
 		color_reset = "";
 	}
 
-	char time_buff[16];
 	if(l->print_time)
 		time_buff[strftime(time_buff, sizeof(time_buff) - 1, l->time_fmt, m->time)] = '\0';
 	else
@@ -267,23 +277,24 @@ void selog_setup_default(void)
 
 int selog_logf(int loglevel, const char *file, int line, const char *function, const char *fmt, ...)
 {
+	int ret;
+	time_t t = time(NULL);
+	struct message m;
+	struct loglevel *l;
+
 	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
-	int ret;
-
-	struct loglevel *l = &loglevels[loglevel];
+	l = &loglevels[loglevel];
 
 	if(!l->print_enabled)
 		return 0;
 
-	struct message m;
 	m.fmt = fmt;
 	m.file = file;
 	m.line = line;
 	m.function = function;
 	m.loglevel = l;
 
-	time_t t = time(NULL);
 	if(l->time_relation == SELOG_TIME_EPOCH)
 	{
 		m.time = localtime(&t);
@@ -301,23 +312,24 @@ int selog_logf(int loglevel, const char *file, int line, const char *function, c
 
 int selog_vlogf(int loglevel, const char *file, int line, const char *function, const char *fmt, va_list args)
 {
+	int ret;
+	time_t t = time(NULL);
+	struct message m;
+	struct loglevel *l;
+
 	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
-	int ret;
-
-	struct loglevel *l = &loglevels[loglevel];
+	l = &loglevels[loglevel];
 
 	if(!l->print_enabled)
 		return 0;
 
-	struct message m;
 	m.fmt = fmt;
 	m.file = file;
 	m.line = line;
 	m.function = function;
 	m.loglevel = l;
 
-	time_t t = time(NULL);
 	if(l->time_relation == SELOG_TIME_EPOCH)
 	{
 		m.time = localtime(&t);
