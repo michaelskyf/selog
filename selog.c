@@ -90,7 +90,7 @@ static int log_to_output(struct message *m)
 		time_buff[0] = '\0';
 
 	lock();
-	// Print message prefix
+	/* Print message prefix */
 	if(l->print_function)
 	{
 		if((size = fprintf(l->fp, "%s%s%s %s()->%s:%d:%s ", time_buff, color, l->prefix, m->function, m->file, m->line, color_reset)) < 0)
@@ -101,7 +101,7 @@ static int log_to_output(struct message *m)
 	}
 	ret += size;
 
-	// Print message
+	/* Print message */
 	if((size = vfprintf(l->fp, m->fmt, m->args)) < 0)
 		error = size;
 	ret += size;
@@ -203,7 +203,7 @@ void selog_setup_default(void)
 #else
 	pthread_mutex_init(&mutex, NULL);
 #endif
-	// Trace
+	/* Trace */
 	selog_set_stream(SELOG_TRACE, stdout);
 	selog_set_color(SELOG_TRACE, SELOG_COLOR_RESET);
 	selog_set_prefix(SELOG_TRACE, "[TRACE]");
@@ -213,7 +213,7 @@ void selog_setup_default(void)
 	selog_print_function(SELOG_TRACE, 0);
 	selog_print_color(SELOG_TRACE, 0);
 	selog_print_time(SELOG_TRACE, 1);
-	// Debug
+	/* Debug */
 	selog_set_stream(SELOG_DEBUG, stdout);
 	selog_set_color(SELOG_DEBUG, SELOG_COLOR_GREEN);
 	selog_set_prefix(SELOG_DEBUG, "[DEBUG]");
@@ -223,7 +223,7 @@ void selog_setup_default(void)
 	selog_print_function(SELOG_DEBUG, 1);
 	selog_print_color(SELOG_DEBUG, 1);
 	selog_print_time(SELOG_DEBUG, 1);
-	// Info
+	/* Info */
 	selog_set_stream(SELOG_INFO, stdout);
 	selog_set_color(SELOG_INFO, SELOG_COLOR_BLUE);
 	selog_set_prefix(SELOG_INFO, "[INFO]");
@@ -233,7 +233,7 @@ void selog_setup_default(void)
 	selog_print_function(SELOG_INFO, 0);
 	selog_print_color(SELOG_INFO, 1);
 	selog_print_time(SELOG_INFO, 1);
-	// Warning
+	/* Warning */
 	selog_set_stream(SELOG_WARNING, stderr);
 	selog_set_color(SELOG_WARNING, SELOG_COLOR_YELLOW);
 	selog_set_prefix(SELOG_WARNING, "[WARNING]");
@@ -243,7 +243,7 @@ void selog_setup_default(void)
 	selog_print_function(SELOG_WARNING, 1);
 	selog_print_color(SELOG_WARNING, 1);
 	selog_print_time(SELOG_WARNING, 1);
-	// Error
+	/* Error */
 	selog_set_stream(SELOG_ERROR, stderr);
 	selog_set_color(SELOG_ERROR, SELOG_COLOR_RED);
 	selog_set_prefix(SELOG_ERROR, "[ERROR]");
@@ -253,7 +253,7 @@ void selog_setup_default(void)
 	selog_print_function(SELOG_ERROR, 1);
 	selog_print_color(SELOG_ERROR, 1);
 	selog_print_time(SELOG_ERROR, 1);
-	// Fatal
+	/* Fatal */
 	selog_set_stream(SELOG_FATAL, stderr);
 	selog_set_color(SELOG_FATAL, SELOG_COLOR_BOLD_RED);
 	selog_set_prefix(SELOG_FATAL, "[FATAL]");
@@ -265,7 +265,7 @@ void selog_setup_default(void)
 	selog_print_time(SELOG_FATAL, 1);
 }
 
-int selog_printf(int loglevel, const char *file, int line, const char *function, const char *fmt, ...)
+int selog_logf(int loglevel, const char *file, int line, const char *function, const char *fmt, ...)
 {
 	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
@@ -276,13 +276,13 @@ int selog_printf(int loglevel, const char *file, int line, const char *function,
 	if(!l->print_enabled)
 		return 0;
 
-	struct message m = {
-		.fmt = fmt,
-		.file = file,
-		.line = line,
-		.function = function,
-		.loglevel = l,
-	};
+	struct message m;
+	m.fmt = fmt;
+	m.file = file;
+	m.line = line;
+	m.function = function;
+	m.loglevel = l;
+
 	time_t t = time(NULL);
 	if(l->time_relation == SELOG_TIME_EPOCH)
 	{
@@ -299,7 +299,7 @@ int selog_printf(int loglevel, const char *file, int line, const char *function,
 	return ret;
 }
 
-int selog_vprintf(int loglevel, const char *file, int line, const char *function, const char *fmt, va_list args)
+int selog_vlogf(int loglevel, const char *file, int line, const char *function, const char *fmt, va_list args)
 {
 	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
@@ -310,13 +310,13 @@ int selog_vprintf(int loglevel, const char *file, int line, const char *function
 	if(!l->print_enabled)
 		return 0;
 
-	struct message m = {
-		.fmt = fmt,
-		.file = file,
-		.line = line,
-		.function = function,
-		.loglevel = l,
-	};
+	struct message m;
+	m.fmt = fmt;
+	m.file = file;
+	m.line = line;
+	m.function = function;
+	m.loglevel = l;
+
 	time_t t = time(NULL);
 	if(l->time_relation == SELOG_TIME_EPOCH)
 	{

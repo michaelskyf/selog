@@ -64,8 +64,8 @@ void selog_print_time(int loglevel, int);
 void selog_setup_default(void);
 
 __attribute__((format(printf, 5, 6)))
-int selog_printf(int loglevel, const char *file, int line, const char *function, const char *fmt, ...);
-int selog_vprintf(int loglevel, const char *file, int line, const char *function, const char *fmt, va_list args);
+int selog_logf(int loglevel, const char *file, int line, const char *function, const char *fmt, ...);
+int selog_vlogf(int loglevel, const char *file, int line, const char *function, const char *fmt, va_list args);
 
 #ifdef __cplusplus
 }
@@ -90,11 +90,11 @@ int selog_vprintf(int loglevel, const char *file, int line, const char *function
 #define SELOG_COLOR_RESET		"\033[0m"
 
 
-#define log_trace(...)		selog_printf(SELOG_TRACE, __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define log_debug(...)		selog_printf(SELOG_DEBUG, __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define log_info(...)		selog_printf(SELOG_INFO, __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define log_warning(...)	selog_printf(SELOG_WARNING, __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define log_error(...)		selog_printf(SELOG_ERROR, __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define log_fatal(...)		selog_printf(SELOG_FATAL, __FILE__, __LINE__, __func__, __VA_ARGS__)
+#define log_trace(...)		selog_logf(SELOG_TRACE, __FILE__, __LINE__, __func__, __VA_ARGS__)
+#define log_debug(...)		selog_logf(SELOG_DEBUG, __FILE__, __LINE__, __func__, __VA_ARGS__)
+#define log_info(...)		selog_logf(SELOG_INFO, __FILE__, __LINE__, __func__, __VA_ARGS__)
+#define log_warning(...)	selog_logf(SELOG_WARNING, __FILE__, __LINE__, __func__, __VA_ARGS__)
+#define log_error(...)		selog_logf(SELOG_ERROR, __FILE__, __LINE__, __func__, __VA_ARGS__)
+#define log_fatal(...)		selog_logf(SELOG_FATAL, __FILE__, __LINE__, __func__, __VA_ARGS__)
 
 #endif
