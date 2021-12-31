@@ -19,8 +19,18 @@
 #include <assert.h>
 #include <time.h>
 #include <unistd.h>
+#ifdef __WIN32__
+#include <winsock2.h>
+#else
+#include <pthread.h>
+#endif
 
 static time_t init_time;
+#ifdef __WIN32__
+static CRITICAL_SECTION mutex;
+#else
+static pthread_mutex_t mutex;
+#endif
 
 struct message {
 	const char *fmt;
@@ -32,26 +42,37 @@ struct message {
 	struct tm *time;
 };
 
-struct loglevel {
-	FILE *fp;
-	const char *color;
-	const char *prefix;
-	const char *time_fmt;
-	int time_relation;
-	int print_enabled;
-	int print_function;
-	int print_color;
-	int print_time;
-};
-
 static struct loglevel loglevels[SELOG_ENUM_LENGTH + 1];
 
-static void log_to_output(struct message *m)
+static void lock()
 {
-	struct loglevel *l = m->loglevel;
+#ifdef __WIN32__
+	EnterCriticalSection(&mutex);
+#else
+	pthread_mutex_lock(&mutex);
+#endif
+}
 
+static void unlock()
+{
+#ifdef __WIN32__
+	LeaveCriticalSection(&mutex);
+#else
+	pthread_mutex_unlock(&mutex);
+#endif
+}
+
+static int log_to_output(struct message *m)
+{
+	/* Printed characters */
+	int ret = 0;
+	/* If error is set, return error instead of printed characters */
+	int error = 0;
+	int size;
 	const char *color;
 	const char *color_reset;
+
+	struct loglevel *l = m->loglevel;
 
 	if(l->print_color)
 	{
@@ -68,17 +89,30 @@ static void log_to_output(struct message *m)
 	else
 		time_buff[0] = '\0';
 
+	lock();
 	// Print message prefix
 	if(l->print_function)
-		fprintf(l->fp, "%s%s%s %s()->%s:%d:%s ", time_buff, color, l->prefix, m->function, m->file, m->line, color_reset);
-	else
-		fprintf(l->fp, "%s%s%s:%s ", time_buff, color, l->prefix, color_reset);
+	{
+		if((size = fprintf(l->fp, "%s%s%s %s()->%s:%d:%s ", time_buff, color, l->prefix, m->function, m->file, m->line, color_reset)) < 0)
+			error = size;
+	} else {
+		if((size = fprintf(l->fp, "%s%s%s:%s ", time_buff, color, l->prefix, color_reset)) < 0)
+			error = size;
+	}
+	ret += size;
 
 	// Print message
-	vfprintf(l->fp, m->fmt, m->args);
-	putc('\n', l->fp);
+	if((size = vfprintf(l->fp, m->fmt, m->args)) < 0)
+		error = size;
+	ret += size;
+	if((size = fprintf(l->fp, "\n")) < 0)
+		error = size;
+	ret += size;
 
 	fflush(l->fp);
+	unlock();
+
+	return (error) ? error : ret;
 }
 
 void selog_set_stream(int loglevel, FILE *stream)
@@ -143,7 +177,7 @@ void selog_print_color(int loglevel, int set)
 
 	struct loglevel *l = &loglevels[loglevel];
 
-	if(!isatty(fileno(l->fp)))
+	if(!isatty((fileno(l->fp))))
 		set = 0;
 
 #ifdef __WIN32__
@@ -164,6 +198,11 @@ void selog_print_time(int loglevel, int set)
 void selog_setup_default(void)
 {
 	init_time = time(NULL);
+#ifdef __WIN32__
+	InitializeCriticalSection(&mutex);
+#else
+	pthread_mutex_init(&mutex, NULL);
+#endif
 	// Trace
 	selog_set_stream(SELOG_TRACE, stdout);
 	selog_set_color(SELOG_TRACE, SELOG_COLOR_RESET);
@@ -226,14 +265,16 @@ void selog_setup_default(void)
 	selog_print_time(SELOG_FATAL, 1);
 }
 
-void selog_printf(int loglevel, const char *file, int line, const char *function, const char *fmt, ...)
+int selog_printf(int loglevel, const char *file, int line, const char *function, const char *fmt, ...)
 {
 	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
+
+	int ret;
 
 	struct loglevel *l = &loglevels[loglevel];
 
 	if(!l->print_enabled)
-		return;
+		return 0;
 
 	struct message m = {
 		.fmt = fmt,
@@ -252,18 +293,22 @@ void selog_printf(int loglevel, const char *file, int line, const char *function
 	}
 
 	va_start(m.args, fmt);
-	log_to_output(&m);
+	ret = log_to_output(&m);
 	va_end(m.args);
+
+	return ret;
 }
 
-void selog_vprintf(int loglevel, const char *file, int line, const char *function, const char *fmt, va_list args)
+int selog_vprintf(int loglevel, const char *file, int line, const char *function, const char *fmt, va_list args)
 {
 	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
+
+	int ret;
 
 	struct loglevel *l = &loglevels[loglevel];
 
 	if(!l->print_enabled)
-		return;
+		return 0;
 
 	struct message m = {
 		.fmt = fmt,
@@ -282,5 +327,7 @@ void selog_vprintf(int loglevel, const char *file, int line, const char *functio
 	}
 
 	va_copy(m.args, args);
-	log_to_output(&m);
+	ret = log_to_output(&m);
+
+	return ret;
 }

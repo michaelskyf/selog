@@ -20,6 +20,18 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+struct loglevel {
+	FILE *fp;
+	const char *color;
+	const char *prefix;
+	const char *time_fmt;
+	int time_relation;
+	int print_enabled;
+	int print_function;
+	int print_color;
+	int print_time;
+};
+
 enum loglevels {
 	SELOG_TRACE,
 	SELOG_DEBUG,
@@ -52,8 +64,8 @@ void selog_print_time(int loglevel, int);
 void selog_setup_default(void);
 
 __attribute__((format(printf, 5, 6)))
-void selog_printf(int loglevel, const char *file, int line, const char *function, const char *fmt, ...);
-void selog_vprintf(int loglevel, const char *file, int line, const char *function, const char *fmt, va_list args);
+int selog_printf(int loglevel, const char *file, int line, const char *function, const char *fmt, ...);
+int selog_vprintf(int loglevel, const char *file, int line, const char *function, const char *fmt, va_list args);
 
 #ifdef __cplusplus
 }
