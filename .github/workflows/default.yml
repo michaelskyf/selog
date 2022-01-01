@@ -1,0 +1,37 @@
+name: C/C++ CI
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  name: ${{ matrix.name }}-build
+  runs-on: ${{ matrix.os }}
+  strategy:
+    fail-fast: false
+    matrix:
+      name: [ubuntu-latest-gcc, macos-latest-clang, windows-latest-cl.exe, ubuntu-latest-clang]
+      include:
+          - name: windows-latest-cl.exe
+            os: windows-latest
+            cxx: cl.exe
+            cc: cl.exe
+          - name: ubuntu-latest-clang
+            os: ubuntu-latest
+            cxx: clang++
+            cc: clang
+          - name: macos-latest-clang
+            os: macos-latest
+            cxx: clang++
+            cc: clang
+          - name: ubuntu-latest-gcc
+            os: ubuntu-latest
+            cxx: g++
+            cc: gcc
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: build
+        run:
+          - make
+          - ./test
