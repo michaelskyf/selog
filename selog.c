@@ -98,6 +98,7 @@ static int log_to_output(struct message *m)
 	else
 		time_buff[0] = '\0';
 
+	/* Lock mutex */
 	lock();
 	/* Print message prefix */
 	if(l->print_function)
@@ -119,6 +120,7 @@ static int log_to_output(struct message *m)
 	ret += size;
 
 	fflush(l->fp);
+	/* Unlock mutex */
 	unlock();
 
 	return (error) ? error : ret;
@@ -126,79 +128,115 @@ static int log_to_output(struct message *m)
 
 void selog_set_stream(int loglevel, FILE *stream)
 {
+	struct loglevel *l;
+
 	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
-	struct loglevel *l = &loglevels[loglevel];
+	l = &loglevels[loglevel];
+	lock();
 	l->fp = stream;
+	unlock();
 }
 
 void selog_set_color(int loglevel, const char *color)
 {
+	struct loglevel *l;
+
 	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
-	struct loglevel *l = &loglevels[loglevel];
+	l = &loglevels[loglevel];
+	lock();
 	l->color = color;
+	unlock();
 }
 
 void selog_set_prefix(int loglevel, const char *prefix)
 {
+	struct loglevel *l;
+
 	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
-	struct loglevel *l = &loglevels[loglevel];
+	l = &loglevels[loglevel];
+	lock();
 	l->prefix = prefix;
+	unlock();
 }
 
 void selog_set_time_fmt(int loglevel, const char *time_fmt)
 {
+	struct loglevel *l;
+
 	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
-	struct loglevel *l = &loglevels[loglevel];
+	l = &loglevels[loglevel];
+	lock();
 	l->time_fmt = time_fmt;
+	unlock();
 }
 
 void selog_set_time_relation(int loglevel, int set)
 {
+	struct loglevel *l;
+
 	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
-	struct loglevel *l = &loglevels[loglevel];
+	l = &loglevels[loglevel];
+	lock();
 	l->time_relation = set;
+	unlock();
 }
 
 void selog_print_enable(int loglevel, int set)
 {
+	struct loglevel *l;
+
 	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
-	struct loglevel *l = &loglevels[loglevel];
+	l = &loglevels[loglevel];
+	lock();
 	l->print_enabled = set;
+	unlock();
 }
 
 void selog_print_function(int loglevel, int set)
 {
+	struct loglevel *l;
+
 	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
-	struct loglevel *l = &loglevels[loglevel];
+	l = &loglevels[loglevel];
+	lock();
 	l->print_function = set;
+	unlock();
 }
 
 void selog_print_color(int loglevel, int set)
 {
+	struct loglevel *l;
+
 	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
-	struct loglevel *l = &loglevels[loglevel];
+	l = &loglevels[loglevel];
 
 #ifdef _WIN32
 	set = 0; // Printing colors on Windows is not supported
 #endif
 
+	lock();
 	l->print_color = set;
+	unlock();
 }
 
 void selog_print_time(int loglevel, int set)
 {
+	struct loglevel *l;
+
 	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
-	struct loglevel *l = &loglevels[loglevel];
+	l = &loglevels[loglevel];
+	lock();
 	l->print_time = set;
+	unlock();
 }
 
 void selog_setup_default(void)
