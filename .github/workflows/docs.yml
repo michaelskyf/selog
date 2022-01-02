@@ -1,0 +1,38 @@
+name: Documentation CI
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+    defaults:
+      run:
+        shell: bash
+
+jobs:
+  build:
+    name: Build selog documentation on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        include:
+          - os: ubuntu-latest
+            target: Linux
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+
+      - name: Update pip
+        run: pip install --upgrade pip
+
+      - name: Install Python dependencies
+        run: pip install sphinx sphinx-rtd-theme breathe
+
+      - name: Build Documentation
+        run: make docs

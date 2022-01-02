@@ -55,6 +55,10 @@ $(PROJECT_NAME): $(objects)
 %.o: %.cpp
 	$(CXX) -c $< -o $@ $(CXXFLAGS)
 
+docs: FORCE
+	@echo Building documentation
+	make html -C docs/sphinx/
+
 run: $(PROJECT_NAME)
 	./$(PROJECT_NAME)
 clean:

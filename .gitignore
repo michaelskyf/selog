@@ -1,3 +1,6 @@
 /test.exe
 /test
 /*.o
+
+/docs/sphinx/build/
+/docs/doxygen/build/

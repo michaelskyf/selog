@@ -14,6 +14,11 @@
     You should have received a copy of the GNU General Public License
     along with selog. If not, see <https://www.gnu.org/licenses/>.
 */
+
+/**
+ * @file selog.h
+ * @author Michał Kostrzewski
+ */
 #ifndef SELOG_H
 #define SELOG_H
 
@@ -63,6 +68,16 @@ void selog_print_time(int loglevel, int);
 
 void selog_setup_default(void);
 
+/*!
+ * @brief Log formatted message according to loglevel
+ *
+ * @param[in]	loglevel	loglevel enum
+ * @param[in]	file		__FILE__ macro
+ * @param[in]	line		__LINE__ macro
+ * @param[in]	function	__func__ macro
+ * @param[in]	fmt
+ * @returns			Number of printed characters or -1
+ */
 __attribute__((format(printf, 5, 6)))
 int selog_logf(int loglevel, const char *file, int line, const char *function, const char *fmt, ...);
 int selog_vlogf(int loglevel, const char *file, int line, const char *function, const char *fmt, va_list args);

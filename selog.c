@@ -14,6 +14,11 @@
     You should have received a copy of the GNU General Public License
     along with selog. If not, see <https://www.gnu.org/licenses/>.
 */
+
+/**
+ * @file selog.c
+ * @author Michał Kostrzewski
+ */
 #include "selog.h"
 #include <stdio.h>
 #include <assert.h>
@@ -84,6 +89,9 @@ static int log_to_output(struct message *m)
 
 	struct loglevel *l = m->loglevel;
 
+	/* Lock mutex */
+	lock();
+
 	if(l->print_color)
 	{
 		color = l->color;
@@ -98,8 +106,6 @@ static int log_to_output(struct message *m)
 	else
 		time_buff[0] = '\0';
 
-	/* Lock mutex */
-	lock();
 	/* Print message prefix */
 	if(l->print_function)
 	{

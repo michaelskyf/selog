@@ -1,6 +1,10 @@
 # selog
 ## _Simple Extensible LOGging library written in C_
 
+![C CI](https://github.com/michaelskyf/selog/actions/workflows/c.yml/badge.svg)
+![C++ CI](https://github.com/michaelskyf/selog/actions/workflows/cpp.yml/badge.svg)
+![Documentation CI](https://github.com/michaelskyf/selog/actions/workflows/docs.yml/badge.svg)
+
 ## Features
 - Simple and extensible
 - Thread safe
