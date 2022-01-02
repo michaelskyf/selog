@@ -13,6 +13,7 @@ If You want to see how selog works, simply run `make run`
 To add selog to Your project include _selog.h_ and compile _selog.c_
 
 To initialize logging use function `void selog_setup_default(void)`
+
 After the call use macros:
 ```
 log_trace(...)
@@ -23,6 +24,7 @@ log_error(...)
 log_debug(...)
 ```
 to print a message to desired loglevel
+
 You can also use `int selog_logf()` or `int selog_vlogf()` directly
 
 ## Supported Languages
