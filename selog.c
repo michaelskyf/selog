@@ -18,8 +18,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <time.h>
-#include <unistd.h>
-#ifdef __WIN32__
+#ifdef _WIN32
 #include <winsock2.h>
 #else
 #include <pthread.h>
@@ -41,7 +40,7 @@ struct message {
 
 static struct loglevel loglevels[SELOG_ENUM_LENGTH + 1];
 static time_t init_time;
-#ifdef __WIN32__
+#ifdef _WIN32
 static CRITICAL_SECTION mutex;
 #else
 static pthread_mutex_t mutex;
@@ -56,7 +55,7 @@ static int log_to_output(struct message *m);
 
 static void lock()
 {
-#ifdef __WIN32__
+#ifdef _WIN32
 	EnterCriticalSection(&mutex);
 #else
 	pthread_mutex_lock(&mutex);
@@ -65,7 +64,7 @@ static void lock()
 
 static void unlock()
 {
-#ifdef __WIN32__
+#ifdef _WIN32
 	LeaveCriticalSection(&mutex);
 #else
 	pthread_mutex_unlock(&mutex);
@@ -187,10 +186,7 @@ void selog_print_color(int loglevel, int set)
 
 	struct loglevel *l = &loglevels[loglevel];
 
-	if(!isatty((fileno(l->fp))))
-		set = 0;
-
-#ifdef __WIN32__
+#ifdef _WIN32
 	set = 0; // Printing colors on Windows is not supported
 #endif
 
@@ -208,7 +204,7 @@ void selog_print_time(int loglevel, int set)
 void selog_setup_default(void)
 {
 	init_time = time(NULL);
-#ifdef __WIN32__
+#ifdef _WIN32
 	InitializeCriticalSection(&mutex);
 #else
 	pthread_mutex_init(&mutex, NULL);

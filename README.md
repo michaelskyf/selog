@@ -16,11 +16,15 @@ To add selog to Your project, include _selog.h_ and compile and link _selog.c_ w
 - C
 - C++
 
+## Supported compilers
+- gcc/g++
+- clang/clang++
+
 ## Supported Operating Systems
-- GNU/Linux (gcc 11 and clang 13)
-- Windows (tested on wine)
+- GNU/Linux
+- Windows
 - BSD
-- MacOS (untested)
+- MacOS
 
 ## Information
 - Conforms to C99 and up
