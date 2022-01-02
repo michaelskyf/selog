@@ -10,11 +10,9 @@
 If You want to see how selog works, simply run `make run`
 
 ## Instructions
-To add selog to Your project include _selog.h_ and compile _selog.c_
-
 To initialize logging use function `void selog_setup_default(void)`
 
-After the call use macros:
+After the call use these macros to print a message to desired loglevel:
 ```
 log_trace(...)
 log_debug(...)
@@ -23,7 +21,6 @@ log_warning(...)
 log_error(...)
 log_debug(...)
 ```
-to print a message to desired loglevel
 
 You can also use `int selog_logf()` or `int selog_vlogf()` directly
 
@@ -43,6 +40,10 @@ You can also use `int selog_logf()` or `int selog_vlogf()` directly
 
 ## Information
 - Conforms to C99 and up
+- Conforms to C++11 and up
+
+## License
+[GPLv3](https://www.gnu.org/licenses/gpl-3.0.html)
 
 ## See also
 - [GTEngine](https://github.com/michaelskyf/GTEngine) - project that uses selog [here](https://github.com/michaelskyf/GTEngine/tree/master/lib)

@@ -7,7 +7,7 @@ cxxsources :=
 
 C_CXX_FLAGS := -Wall -Wextra -Wpedantic -g -Os
 CFLAGS := $(C_CXX_FLAGS) -std=c99
-CXXFLAGS := $(C_CXX_FLAGS)
+CXXFLAGS := $(C_CXX_FLAGS) -std=c++11
 
 LDFLAGS :=
 
