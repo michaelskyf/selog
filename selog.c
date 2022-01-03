@@ -55,9 +55,7 @@ static int log_to_output(struct message *m);
 /* Definitions */
 static inline int _internal_selog_get_flag_value(struct loglevel *l, int flag)
 {
-	lock();
 	return (l->flags & flag);
-	unlock();
 }
 
 static void lock()
@@ -91,11 +89,11 @@ static int log_to_output(struct message *m)
 
 	struct loglevel *l = m->loglevel;
 
-	if(!_internal_selog_get_flag_value(l, SELOG_FLAG_ENABLED))
-		return 0;
-
 	/* Lock mutex */
 	lock();
+
+	if(!_internal_selog_get_flag_value(l, SELOG_FLAG_ENABLED))
+		return 0;
 
 	if(_internal_selog_get_flag_value(l, SELOG_FLAG_COLOR))
 	{
@@ -188,25 +186,29 @@ void selog_set_time_fmt(int loglevel, const char *time_fmt)
 int selog_set_flag(int loglevel, int flag)
 {
 	struct loglevel *l;
+	int ret;
 
 	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
 	l = &loglevels[loglevel];
 	lock();
-	return (l->flags |= flag);
+	ret = (l->flags |= flag);
 	unlock();
+	return ret;
 }
 
 int selog_unset_flag(int loglevel, int flag)
 {
 	struct loglevel *l;
+	int ret;
 
 	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
 
 	l = &loglevels[loglevel];
 	lock();
-	return (l->flags &= ~flag);
+	ret = (l->flags &= ~flag);
 	unlock();
+	return ret;
 }
 
 int selog_get_flag(int loglevel, int flag)
