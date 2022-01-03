@@ -1,6 +1,6 @@
 #include "selog.h"
 
-int main()
+int main(void)
 {
 	selog_setup_default();
 

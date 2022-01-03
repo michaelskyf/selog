@@ -77,7 +77,7 @@ int selog_set_flag(int loglevel, int flag);
  * @param[in]	loglevel	enum
  * @param[in]	flag		enum
  */
-int selog_get_flag_value(int loglevel, int flag);
+int selog_get_flag(int loglevel, int flag);
 /*!
  * @brief Unset flag in loglevel
  *

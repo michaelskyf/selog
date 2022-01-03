@@ -5,8 +5,10 @@ PROJECT_NAME := test
 csources := test.c selog.c
 cxxsources :=
 
-C_CXX_FLAGS := -Wall -Wextra -Wpedantic -g -Os
-CFLAGS := $(C_CXX_FLAGS) -std=c99
+C_CXX_FLAGS := -Werror -Wall -Wextra -Wpedantic -g -Os \
+	       -Wunreachable-code  \
+	       -Wno-deprecated
+CFLAGS := $(C_CXX_FLAGS) -Wmissing-prototypes -Wstrict-prototypes -std=c99
 CXXFLAGS := $(C_CXX_FLAGS) -std=c++11
 
 LDFLAGS :=
