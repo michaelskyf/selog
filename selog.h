@@ -14,11 +14,6 @@
     You should have received a copy of the GNU General Public License
     along with selog. If not, see <https://www.gnu.org/licenses/>.
 */
-
-/**
- * @file selog.h
- * @author Michał Kostrzewski
- */
 #ifndef SELOG_H
 #define SELOG_H
 
@@ -30,11 +25,7 @@ struct loglevel {
 	const char *color;
 	const char *prefix;
 	const char *time_fmt;
-	int time_relation;
-	int print_enabled;
-	int print_function;
-	int print_color;
-	int print_time;
+	int flags;
 };
 
 enum loglevels {
@@ -47,9 +38,21 @@ enum loglevels {
 	SELOG_ENUM_LENGTH = SELOG_FATAL
 };
 
-enum time_relations {
-	SELOG_TIME_EPOCH,
-	SELOG_TIME_INIT
+/*!
+ * @brief Flags that control logging format
+ */
+enum flags {
+	SELOG_FLAG_ENABLED = 1 << 0,
+	SELOG_FLAG_TIME = 1 << 1,
+	SELOG_FLAG_COLOR = 1 << 2,
+	SELOG_FLAG_FUNCTION = 1 << 3,
+
+	SELOG_FLAG_ALL = SELOG_FLAG_ENABLED
+		| SELOG_FLAG_TIME
+#ifndef _WIN32
+		| SELOG_FLAG_COLOR
+#endif
+		| SELOG_FLAG_FUNCTION
 };
 
 #ifdef __cplusplus
@@ -60,26 +63,59 @@ void selog_set_stream(int loglevel, FILE *stream);
 void selog_set_color(int loglevel, const char *color);
 void selog_set_prefix(int loglevel, const char *prefix);
 void selog_set_time_fmt(int loglevel, const char *time_fmt);
-void selog_set_time_relation(int loglevel, int);
-void selog_print_enable(int loglevel, int);
-void selog_print_function(int loglevel, int);
-void selog_print_color(int loglevel, int);
-void selog_print_time(int loglevel, int);
 
+/*!
+ * @brief Set flag in loglevel
+ *
+ * @param[in]	loglevel	enum
+ * @param[in]	flag		enum
+ */
+int selog_set_flag(int loglevel, int flag);
+/*!
+ * @brief Get flag value from loglevel
+ *
+ * @param[in]	loglevel	enum
+ * @param[in]	flag		enum
+ */
+int selog_get_flag_value(int loglevel, int flag);
+/*!
+ * @brief Unset flag in loglevel
+ *
+ * @param[in]	loglevel	enum
+ * @param[in]	flag		enum
+ */
+int selog_unset_flag(int loglevel, int flag);
+
+/*!
+ * @brief Setup default logging
+ *
+ */
 void selog_setup_default(void);
 
 /*!
- * @brief Log formatted message according to loglevel
+ * @brief Log formatted message according to flags set in loglevel
  *
- * @param[in]	loglevel	loglevel enum
+ * @param[in]	loglevel	enum
  * @param[in]	file		__FILE__ macro
  * @param[in]	line		__LINE__ macro
  * @param[in]	function	__func__ macro
- * @param[in]	fmt
+ * @param[in]	fmt		Format specification
+ * @param[in]	...		Arguments for format specification
  * @returns			Number of printed characters or -1
  */
 __attribute__((format(printf, 5, 6)))
 int selog_logf(int loglevel, const char *file, int line, const char *function, const char *fmt, ...);
+/*!
+ * @brief Log formatted message according to flags set in loglevel
+ *
+ * @param[in]	loglevel	enum
+ * @param[in]	file		__FILE__ macro
+ * @param[in]	line		__LINE__ macro
+ * @param[in]	function	__func__ macro
+ * @param[in]	fmt		Format specification
+ * @param[in]	args		Arguments for format specification
+ * @returns			Number of printed characters or -1
+ */
 int selog_vlogf(int loglevel, const char *file, int line, const char *function, const char *fmt, va_list args);
 
 #ifdef __cplusplus

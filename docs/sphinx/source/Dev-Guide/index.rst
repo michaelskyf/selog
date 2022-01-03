@@ -10,4 +10,4 @@ This documentation is provided for the developers who want to use selog in their
    :caption: API
    :maxdepth: 2
 
-.. doxygenfunction:: selog_logf
+.. doxygenindex::
