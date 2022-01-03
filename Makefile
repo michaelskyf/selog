@@ -67,5 +67,7 @@ clean:
 	rm -f $(PROJECT_NAME)
 	rm -f $(PROJECT_NAME).exe
 	rm -f $(wildcard *.o)
+	rm -rf docs/sphinx/build
+	rm -rf docs/doxygen/build
 
 FORCE: ;
