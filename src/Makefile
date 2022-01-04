@@ -1,1 +1,1 @@
-lib-y := selog.o
+obj-y := selog.o

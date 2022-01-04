@@ -1,7 +1,6 @@
 # All you need is here
 # =========================================================
 PROJECT_NAME := selog
-PROJECT_TYPE := L # S - Standalone L - Library
 
 source-dir := src
 test-dir := tests
@@ -17,14 +16,13 @@ LDFLAGS :=
 # Rest of the Makefile (most likely you won't need it)
 # =========================================================
 
-lib-y :=
 obj-y :=
 src := $(source-dir)
 tests := $(test-dir)
 
 include $(source-dir)/Makefile
+objects := $(source-dir)/$(obj-y)
 include $(test-dir)/Makefile
-objects := $(source-dir)/$(lib-y)
 objects += $(test-dir)/$(obj-y)
 
 MAKEFLAGS += -rR
