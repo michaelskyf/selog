@@ -55,16 +55,10 @@ all: $(PROJECT_NAME)
 $(PROJECT_NAME): $(objects)
 	$(CC) $(objects) -o $(PROJECT_NAME) $(LDFLAGS)
 
-$(src)/%.o: $(src)/%.c
+%.o: %.c
 	$(CC) -c $< -o $@ $(CFLAGS)
 
-$(src)/%.o: $(src)/%.cpp
-	$(CXX) -c $< -o $@ $(CXXFLAGS)
-
-$(tests)/%.o: $(tests)/%.c
-	$(CC) -c $< -o $@ $(CFLAGS)
-
-$(tests)/%.o: $(tests)/%.cpp
+%.o: %.cpp
 	$(CXX) -c $< -o $@ $(CXXFLAGS)
 
 docs: FORCE
