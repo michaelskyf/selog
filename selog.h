@@ -28,15 +28,17 @@ struct loglevel {
 	int flags;
 };
 
-enum loglevels {
-	SELOG_TRACE,
-	SELOG_DEBUG,
-	SELOG_INFO,
-	SELOG_WARNING,
-	SELOG_ERROR,
-	SELOG_FATAL,
-	SELOG_ENUM_LENGTH = SELOG_FATAL
-};
+/** @defgroup loglevels
+ * selog's pre-defined loglevels
+ * @{
+ */
+extern struct loglevel * const selog_loglevel_trace;
+extern struct loglevel * const selog_loglevel_debug;
+extern struct loglevel * const selog_loglevel_info;
+extern struct loglevel * const selog_loglevel_warning;
+extern struct loglevel * const selog_loglevel_error;
+extern struct loglevel * const selog_loglevel_fatal;
+/** @}*/
 
 /*!
  * @brief Flags that control logging format
@@ -59,35 +61,37 @@ enum flags {
 extern "C" {
 #endif
 
-void selog_set_stream(int loglevel, FILE *stream);
-void selog_set_color(int loglevel, const char *color);
-void selog_set_prefix(int loglevel, const char *prefix);
-void selog_set_time_fmt(int loglevel, const char *time_fmt);
+void selog_set_stream(struct loglevel *l, FILE *stream);
+void selog_set_color(struct loglevel *l, const char *color);
+void selog_set_prefix(struct loglevel *l, const char *prefix);
+void selog_set_time_fmt(struct loglevel *l, const char *time_fmt);
 
 /*!
  * @brief Set flag in loglevel
  *
- * @param[in]	loglevel	enum
+ * @param[in]	loglevel	Pointer to loglevel struct
  * @param[in]	flag		enum
  */
-int selog_set_flag(int loglevel, int flag);
+int selog_set_flag(struct loglevel *l, int flag);
+
 /*!
  * @brief Get flag value from loglevel
  *
- * @param[in]	loglevel	enum
+ * @param[in]	loglevel	Pointer to loglevel struct
  * @param[in]	flag		enum
  */
-int selog_get_flag(int loglevel, int flag);
+int selog_get_flag(struct loglevel *l, int flag);
+
 /*!
  * @brief Unset flag in loglevel
  *
- * @param[in]	loglevel	enum
+ * @param[in]	loglevel	Pointer to loglevel struct
  * @param[in]	flag		enum
  */
-int selog_unset_flag(int loglevel, int flag);
+int selog_unset_flag(struct loglevel *l, int flag);
 
 /*!
- * @brief Setup default logging
+ * @brief Setup default logging parameters
  *
  */
 void selog_setup_default(void);
@@ -95,7 +99,7 @@ void selog_setup_default(void);
 /*!
  * @brief Log formatted message according to flags set in loglevel
  *
- * @param[in]	loglevel	enum
+ * @param[in]	loglevel	Pointer to loglevel struct
  * @param[in]	file		__FILE__ macro
  * @param[in]	line		__LINE__ macro
  * @param[in]	function	__func__ macro
@@ -104,11 +108,11 @@ void selog_setup_default(void);
  * @returns			Number of printed characters or -1
  */
 __attribute__((format(printf, 5, 6)))
-int selog_logf(int loglevel, const char *file, int line, const char *function, const char *fmt, ...);
+int selog_logf(struct loglevel *l, const char *file, int line, const char *function, const char *fmt, ...);
 /*!
  * @brief Log formatted message according to flags set in loglevel
  *
- * @param[in]	loglevel	enum
+ * @param[in]	loglevel	Pointer to loglevel struct
  * @param[in]	file		__FILE__ macro
  * @param[in]	line		__LINE__ macro
  * @param[in]	function	__func__ macro
@@ -116,7 +120,7 @@ int selog_logf(int loglevel, const char *file, int line, const char *function, c
  * @param[in]	args		Arguments for format specification
  * @returns			Number of printed characters or -1
  */
-int selog_vlogf(int loglevel, const char *file, int line, const char *function, const char *fmt, va_list args);
+int selog_vlogf(struct loglevel *l, const char *file, int line, const char *function, const char *fmt, va_list args);
 
 #ifdef __cplusplus
 }
@@ -141,11 +145,16 @@ int selog_vlogf(int loglevel, const char *file, int line, const char *function, 
 #define SELOG_COLOR_RESET		"\033[0m"
 
 
-#define log_trace(...)		selog_logf(SELOG_TRACE, __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define log_debug(...)		selog_logf(SELOG_DEBUG, __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define log_info(...)		selog_logf(SELOG_INFO, __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define log_warning(...)	selog_logf(SELOG_WARNING, __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define log_error(...)		selog_logf(SELOG_ERROR, __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define log_fatal(...)		selog_logf(SELOG_FATAL, __FILE__, __LINE__, __func__, __VA_ARGS__)
+/** @defgroup logging_macros
+ * Convenience macros used to log a message to pre-defined loglevel
+ * @{
+ */
+#define log_trace(...)		selog_logf(selog_loglevel_trace, __FILE__, __LINE__, __func__, __VA_ARGS__)
+#define log_debug(...)		selog_logf(selog_loglevel_debug, __FILE__, __LINE__, __func__, __VA_ARGS__)
+#define log_info(...)		selog_logf(selog_loglevel_info, __FILE__, __LINE__, __func__, __VA_ARGS__)
+#define log_warning(...)	selog_logf(selog_loglevel_warning, __FILE__, __LINE__, __func__, __VA_ARGS__)
+#define log_error(...)		selog_logf(selog_loglevel_error, __FILE__, __LINE__, __func__, __VA_ARGS__)
+#define log_fatal(...)		selog_logf(selog_loglevel_fatal, __FILE__, __LINE__, __func__, __VA_ARGS__)
+/** @}*/
 
 #endif

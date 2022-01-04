@@ -25,7 +25,6 @@
 #endif
 
 /* Structs */
-
 struct message {
 	const char *fmt;
 	va_list args;
@@ -37,8 +36,6 @@ struct message {
 };
 
 /* Variables */
-
-static struct loglevel loglevels[SELOG_ENUM_LENGTH + 1];
 static time_t init_time;
 #ifdef _WIN32
 static CRITICAL_SECTION mutex;
@@ -46,18 +43,26 @@ static CRITICAL_SECTION mutex;
 static pthread_mutex_t mutex;
 #endif
 
+struct loglevel _selog_loglevel_trace;
+struct loglevel _selog_loglevel_debug;
+struct loglevel _selog_loglevel_info;
+struct loglevel _selog_loglevel_warning;
+struct loglevel _selog_loglevel_error;
+struct loglevel _selog_loglevel_fatal;
+
+struct loglevel * const selog_loglevel_trace = &_selog_loglevel_trace;
+struct loglevel * const selog_loglevel_debug = &_selog_loglevel_debug;
+struct loglevel * const selog_loglevel_info = &_selog_loglevel_info;
+struct loglevel * const selog_loglevel_warning = &_selog_loglevel_warning;
+struct loglevel * const selog_loglevel_error = &_selog_loglevel_error;
+struct loglevel * const selog_loglevel_fatal = &_selog_loglevel_fatal;
+
 /* Declarations */
-static inline int _internal_selog_get_flag_value(struct loglevel *l, int flag);
 static void lock(void);
 static void unlock(void);
 static int log_to_output(struct message *m);
 
 /* Definitions */
-static inline int _internal_selog_get_flag_value(struct loglevel *l, int flag)
-{
-	return (l->flags & flag);
-}
-
 static void lock()
 {
 #ifdef _WIN32
@@ -92,10 +97,10 @@ static int log_to_output(struct message *m)
 	/* Lock mutex */
 	lock();
 
-	if(!_internal_selog_get_flag_value(l, SELOG_FLAG_ENABLED))
+	if(!selog_get_flag(l, SELOG_FLAG_ENABLED))
 		return 0;
 
-	if(_internal_selog_get_flag_value(l, SELOG_FLAG_COLOR))
+	if(selog_get_flag(l, SELOG_FLAG_COLOR))
 	{
 		color = l->color;
 		color_reset = SELOG_COLOR_RESET;
@@ -104,13 +109,13 @@ static int log_to_output(struct message *m)
 		color_reset = "";
 	}
 
-	if(_internal_selog_get_flag_value(l, SELOG_FLAG_TIME))
+	if(selog_get_flag(l, SELOG_FLAG_TIME))
 		time_buff[strftime(time_buff, sizeof(time_buff) - 1, l->time_fmt, m->time)] = '\0';
 	else
 		time_buff[0] = '\0';
 
 	/* Print message prefix */
-	if(_internal_selog_get_flag_value(l, SELOG_FLAG_FUNCTION))
+	if(selog_get_flag(l, SELOG_FLAG_FUNCTION))
 	{
 		if((size = fprintf(l->fp, "%s%s%s %s()->%s:%d:%s ", time_buff, color, l->prefix, m->function, m->file, m->line, color_reset)) < 0)
 			error = size;
@@ -135,90 +140,63 @@ static int log_to_output(struct message *m)
 	return (error) ? error : ret;
 }
 
-void selog_set_stream(int loglevel, FILE *stream)
+void selog_set_stream(struct loglevel *l, FILE *stream)
 {
-	struct loglevel *l;
-
-	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
-
-	l = &loglevels[loglevel];
 	lock();
 	l->fp = stream;
 	unlock();
 }
 
-void selog_set_color(int loglevel, const char *color)
+void selog_set_color(struct loglevel *l, const char *color)
 {
-	struct loglevel *l;
-
-	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
-
-	l = &loglevels[loglevel];
 	lock();
 	l->color = color;
 	unlock();
 }
 
-void selog_set_prefix(int loglevel, const char *prefix)
+void selog_set_prefix(struct loglevel *l, const char *prefix)
 {
-	struct loglevel *l;
-
-	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
-
-	l = &loglevels[loglevel];
 	lock();
 	l->prefix = prefix;
 	unlock();
 }
 
-void selog_set_time_fmt(int loglevel, const char *time_fmt)
+void selog_set_time_fmt(struct loglevel *l, const char *time_fmt)
 {
-	struct loglevel *l;
-
-	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
-
-	l = &loglevels[loglevel];
 	lock();
 	l->time_fmt = time_fmt;
 	unlock();
 }
 
-int selog_set_flag(int loglevel, int flag)
+int selog_set_flag(struct loglevel *l, int flag)
 {
-	struct loglevel *l;
 	int ret;
 
-	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
-
-	l = &loglevels[loglevel];
 	lock();
 	ret = (l->flags |= flag);
 	unlock();
+
 	return ret;
 }
 
-int selog_unset_flag(int loglevel, int flag)
+int selog_unset_flag(struct loglevel *l, int flag)
 {
-	struct loglevel *l;
 	int ret;
 
-	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
-
-	l = &loglevels[loglevel];
 	lock();
 	ret = (l->flags &= ~flag);
 	unlock();
+
 	return ret;
 }
 
-int selog_get_flag(int loglevel, int flag)
+int selog_get_flag(struct loglevel *l, int flag)
 {
-	struct loglevel *l;
+	int ret;
 
-	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
+	ret = (l->flags & flag);
 
-	l = &loglevels[loglevel];
-	return _internal_selog_get_flag_value(l, flag);
+	return ret;
 }
 
 void selog_setup_default(void)
@@ -230,56 +208,51 @@ void selog_setup_default(void)
 	pthread_mutex_init(&mutex, NULL);
 #endif
 	/* Trace */
-	selog_set_stream(SELOG_TRACE, stdout);
-	selog_set_color(SELOG_TRACE, SELOG_COLOR_RESET);
-	selog_set_prefix(SELOG_TRACE, "[TRACE]");
-	selog_set_time_fmt(SELOG_TRACE, "(%H:%M:%S)");
-	selog_set_flag(SELOG_TRACE, SELOG_FLAG_ALL);
-	selog_unset_flag(SELOG_INFO, SELOG_FLAG_FUNCTION);
-	selog_unset_flag(SELOG_INFO, SELOG_FLAG_COLOR);
+	selog_set_stream(selog_loglevel_trace, stdout);
+	selog_set_color(selog_loglevel_trace, SELOG_COLOR_RESET);
+	selog_set_prefix(selog_loglevel_trace, "[TRACE]");
+	selog_set_time_fmt(selog_loglevel_trace, "(%H:%M:%S)");
+	selog_set_flag(selog_loglevel_trace, SELOG_FLAG_ALL);
+	selog_unset_flag(selog_loglevel_trace, SELOG_FLAG_FUNCTION);
+	selog_unset_flag(selog_loglevel_trace, SELOG_FLAG_COLOR);
 	/* Debug */
-	selog_set_stream(SELOG_DEBUG, stdout);
-	selog_set_color(SELOG_DEBUG, SELOG_COLOR_GREEN);
-	selog_set_prefix(SELOG_DEBUG, "[DEBUG]");
-	selog_set_time_fmt(SELOG_DEBUG, "(%H:%M:%S)");
-	selog_set_flag(SELOG_DEBUG, SELOG_FLAG_ALL);
+	selog_set_stream(selog_loglevel_debug, stdout);
+	selog_set_color(selog_loglevel_debug, SELOG_COLOR_GREEN);
+	selog_set_prefix(selog_loglevel_debug, "[DEBUG]");
+	selog_set_time_fmt(selog_loglevel_debug, "(%H:%M:%S)");
+	selog_set_flag(selog_loglevel_debug, SELOG_FLAG_ALL);
 	/* Info */
-	selog_set_stream(SELOG_INFO, stdout);
-	selog_set_color(SELOG_INFO, SELOG_COLOR_BLUE);
-	selog_set_prefix(SELOG_INFO, "[INFO]");
-	selog_set_time_fmt(SELOG_INFO, "(%H:%M:%S)");
-	selog_set_flag(SELOG_INFO, SELOG_FLAG_ALL);
-	selog_unset_flag(SELOG_INFO, SELOG_FLAG_FUNCTION);
+	selog_set_stream(selog_loglevel_info, stdout);
+	selog_set_color(selog_loglevel_info, SELOG_COLOR_BLUE);
+	selog_set_prefix(selog_loglevel_info, "[INFO]");
+	selog_set_time_fmt(selog_loglevel_info, "(%H:%M:%S)");
+	selog_set_flag(selog_loglevel_info, SELOG_FLAG_ALL);
+	selog_unset_flag(selog_loglevel_info, SELOG_FLAG_FUNCTION);
 	/* Warning */
-	selog_set_stream(SELOG_WARNING, stderr);
-	selog_set_color(SELOG_WARNING, SELOG_COLOR_YELLOW);
-	selog_set_prefix(SELOG_WARNING, "[WARNING]");
-	selog_set_time_fmt(SELOG_WARNING, "(%H:%M:%S)");
-	selog_set_flag(SELOG_WARNING, SELOG_FLAG_ALL);
+	selog_set_stream(selog_loglevel_warning, stderr);
+	selog_set_color(selog_loglevel_warning, SELOG_COLOR_YELLOW);
+	selog_set_prefix(selog_loglevel_warning, "[WARNING]");
+	selog_set_time_fmt(selog_loglevel_warning, "(%H:%M:%S)");
+	selog_set_flag(selog_loglevel_warning, SELOG_FLAG_ALL);
 	/* Error */
-	selog_set_stream(SELOG_ERROR, stderr);
-	selog_set_color(SELOG_ERROR, SELOG_COLOR_RED);
-	selog_set_prefix(SELOG_ERROR, "[ERROR]");
-	selog_set_time_fmt(SELOG_ERROR, "(%H:%M:%S)");
-	selog_set_flag(SELOG_ERROR, SELOG_FLAG_ALL);
+	selog_set_stream(selog_loglevel_error, stderr);
+	selog_set_color(selog_loglevel_error, SELOG_COLOR_RED);
+	selog_set_prefix(selog_loglevel_error, "[ERROR]");
+	selog_set_time_fmt(selog_loglevel_error, "(%H:%M:%S)");
+	selog_set_flag(selog_loglevel_error, SELOG_FLAG_ALL);
 	/* Fatal */
-	selog_set_stream(SELOG_FATAL, stderr);
-	selog_set_color(SELOG_FATAL, SELOG_COLOR_BOLD_RED);
-	selog_set_prefix(SELOG_FATAL, "[FATAL]");
-	selog_set_time_fmt(SELOG_FATAL, "(%H:%M:%S)");
-	selog_set_flag(SELOG_FATAL, SELOG_FLAG_ALL);
+	selog_set_stream(selog_loglevel_fatal, stderr);
+	selog_set_color(selog_loglevel_fatal, SELOG_COLOR_BOLD_RED);
+	selog_set_prefix(selog_loglevel_fatal, "[FATAL]");
+	selog_set_time_fmt(selog_loglevel_fatal, "(%H:%M:%S)");
+	selog_set_flag(selog_loglevel_fatal, SELOG_FLAG_ALL);
 }
 
-int selog_logf(int loglevel, const char *file, int line, const char *function, const char *fmt, ...)
+int selog_logf(struct loglevel *l, const char *file, int line, const char *function, const char *fmt, ...)
 {
 	int ret;
 	time_t t = time(NULL);
 	struct message m;
-	struct loglevel *l;
-
-	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
-
-	l = &loglevels[loglevel];
 
 	m.fmt = fmt;
 	m.file = file;
@@ -295,16 +268,11 @@ int selog_logf(int loglevel, const char *file, int line, const char *function, c
 	return ret;
 }
 
-int selog_vlogf(int loglevel, const char *file, int line, const char *function, const char *fmt, va_list args)
+int selog_vlogf(struct loglevel *l, const char *file, int line, const char *function, const char *fmt, va_list args)
 {
 	int ret;
 	time_t t = time(NULL);
 	struct message m;
-	struct loglevel *l;
-
-	assert(loglevel >= 0 && loglevel <= SELOG_ENUM_LENGTH);
-
-	l = &loglevels[loglevel];
 
 	m.fmt = fmt;
 	m.file = file;
