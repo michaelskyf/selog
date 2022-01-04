@@ -1,0 +1,1 @@
+lib-y := selog.o

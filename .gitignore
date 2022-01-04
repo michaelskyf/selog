@@ -1,6 +1,6 @@
-/test.exe
-/test
-/*.o
+/selog.exe
+/selog
+*.o
 
 /docs/sphinx/build/
 /docs/doxygen/build/

@@ -1,4 +1,4 @@
-#include "selog.h"
+#include "../include/selog.h"
 
 int main(void)
 {

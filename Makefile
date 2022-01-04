@@ -1,9 +1,10 @@
 # All you need is here
 # =========================================================
-PROJECT_NAME := test
+PROJECT_NAME := selog
+PROJECT_TYPE := L # S - Standalone L - Library
 
-csources := test.c selog.c
-cxxsources :=
+source-dir := src
+test-dir := tests
 
 C_CXX_FLAGS := -Werror -Wall -Wextra -Wpedantic -g -Os \
 	       -Wunreachable-code  \
@@ -15,6 +16,16 @@ LDFLAGS :=
 
 # Rest of the Makefile (most likely you won't need it)
 # =========================================================
+
+lib-y :=
+obj-y :=
+src := $(source-dir)
+tests := $(test-dir)
+
+include $(source-dir)/Makefile
+include $(test-dir)/Makefile
+objects := $(source-dir)/$(lib-y)
+objects += $(test-dir)/$(obj-y)
 
 MAKEFLAGS += -rR
 
@@ -35,11 +46,6 @@ ifndef BUILD_FORCE_CXX
   BUILD_FORCE_CXX = 0
 endif
 
-cobjects := $(csources:%.c=%.o)
-cxxobjects := $(cxxsources:%.cpp=%.o)
-
-objects := $(cobjects) $(cxxobjects)
-
 ifeq ($(BUILD_FORCE_CC), 1)
   CXXFLAGS = $(CFLAGS)
 else ifeq ($(BUILD_FORCE_CXX), 1)
@@ -51,10 +57,16 @@ all: $(PROJECT_NAME)
 $(PROJECT_NAME): $(objects)
 	$(CC) $(objects) -o $(PROJECT_NAME) $(LDFLAGS)
 
-%.o: %.c
+$(src)/%.o: $(src)/%.c
 	$(CC) -c $< -o $@ $(CFLAGS)
 
-%.o: %.cpp
+$(src)/%.o: $(src)/%.cpp
+	$(CXX) -c $< -o $@ $(CXXFLAGS)
+
+$(tests)/%.o: $(tests)/%.c
+	$(CC) -c $< -o $@ $(CFLAGS)
+
+$(tests)/%.o: $(tests)/%.cpp
 	$(CXX) -c $< -o $@ $(CXXFLAGS)
 
 docs: FORCE
@@ -63,10 +75,11 @@ docs: FORCE
 
 run: $(PROJECT_NAME)
 	./$(PROJECT_NAME)
+
 clean:
 	rm -f $(PROJECT_NAME)
 	rm -f $(PROJECT_NAME).exe
-	rm -f $(wildcard *.o)
+	rm -f $(wildcard ./**/*.o)
 	rm -rf docs/sphinx/build
 	rm -rf docs/doxygen/build
 
