@@ -105,11 +105,16 @@ static int log_to_output(struct message *m)
 	{
 		time = localtime(&t);
 	}
-	else if(selog_get_flag(l, SELOG_FLAG_TIME_MODE) == SELOG_TIME_MODE_INIT)
+	else
 	{
 		t -= init_time;
 		time = gmtime(&t);
 	}
+
+	if(selog_get_flag(l, SELOG_FLAG_TIME))
+		time_buff[strftime(time_buff, sizeof(time_buff) - 1, l->time_fmt, time)] = '\0';
+	else
+		time_buff[0] = '\0';
 
 	if(selog_get_flag(l, SELOG_FLAG_COLOR))
 	{
@@ -119,11 +124,6 @@ static int log_to_output(struct message *m)
 		color = "";
 		color_reset = "";
 	}
-
-	if(selog_get_flag(l, SELOG_FLAG_TIME))
-		time_buff[strftime(time_buff, sizeof(time_buff) - 1, l->time_fmt, time)] = '\0';
-	else
-		time_buff[0] = '\0';
 
 	/* Print message prefix */
 	if(selog_get_flag(l, SELOG_FLAG_FUNCTION))
