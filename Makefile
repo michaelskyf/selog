@@ -5,9 +5,10 @@ PROJECT_NAME := selog
 source-dir := src
 test-dir := tests
 
-C_CXX_FLAGS := -Werror -Wall -Wextra -Wpedantic -g -Os \
-	       -Wunreachable-code  \
-	       -Wno-deprecated
+C_CXX_FLAGS := -Werror -Wall -Wextra -Wundef -Wpedantic -g -Os \
+	       -Wunreachable-code \
+	       -Wno-deprecated \
+	       -Wmissing-field-initializers
 CFLAGS := $(C_CXX_FLAGS) -Wmissing-prototypes -Wstrict-prototypes -std=c99
 CXXFLAGS := $(C_CXX_FLAGS) -std=c++11
 

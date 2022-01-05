@@ -32,7 +32,6 @@ struct message {
 	int line;
 	const char *function;
 	struct loglevel *loglevel;
-	struct tm *time;
 };
 
 /* Variables */
@@ -88,6 +87,8 @@ static int log_to_output(struct message *m)
 	int size;
 
 	char time_buff[16];
+	time_t t = time(NULL);
+	struct tm *time;
 
 	const char *color;
 	const char *color_reset;
@@ -100,6 +101,16 @@ static int log_to_output(struct message *m)
 	if(!selog_get_flag(l, SELOG_FLAG_ENABLED))
 		return 0;
 
+	if(selog_get_flag(l, SELOG_FLAG_TIME_MODE) == SELOG_TIME_MODE_EPOCH)
+	{
+		time = localtime(&t);
+	}
+	else if(selog_get_flag(l, SELOG_FLAG_TIME_MODE) == SELOG_TIME_MODE_INIT)
+	{
+		t -= init_time;
+		time = gmtime(&t);
+	}
+
 	if(selog_get_flag(l, SELOG_FLAG_COLOR))
 	{
 		color = l->color;
@@ -110,7 +121,7 @@ static int log_to_output(struct message *m)
 	}
 
 	if(selog_get_flag(l, SELOG_FLAG_TIME))
-		time_buff[strftime(time_buff, sizeof(time_buff) - 1, l->time_fmt, m->time)] = '\0';
+		time_buff[strftime(time_buff, sizeof(time_buff) - 1, l->time_fmt, time)] = '\0';
 	else
 		time_buff[0] = '\0';
 
@@ -251,7 +262,6 @@ void selog_setup_default(void)
 int selog_logf(struct loglevel *l, const char *file, int line, const char *function, const char *fmt, ...)
 {
 	int ret;
-	time_t t = time(NULL);
 	struct message m;
 
 	m.fmt = fmt;
@@ -259,7 +269,6 @@ int selog_logf(struct loglevel *l, const char *file, int line, const char *funct
 	m.line = line;
 	m.function = function;
 	m.loglevel = l;
-	m.time = localtime(&t);
 
 	va_start(m.args, fmt);
 	ret = log_to_output(&m);
@@ -271,7 +280,6 @@ int selog_logf(struct loglevel *l, const char *file, int line, const char *funct
 int selog_vlogf(struct loglevel *l, const char *file, int line, const char *function, const char *fmt, va_list args)
 {
 	int ret;
-	time_t t = time(NULL);
 	struct message m;
 
 	m.fmt = fmt;
@@ -279,7 +287,6 @@ int selog_vlogf(struct loglevel *l, const char *file, int line, const char *func
 	m.line = line;
 	m.function = function;
 	m.loglevel = l;
-	m.time = localtime(&t);
 
 	va_copy(m.args, args);
 	ret = log_to_output(&m);

@@ -40,17 +40,26 @@ extern struct loglevel * const selog_loglevel_error;
 extern struct loglevel * const selog_loglevel_fatal;
 /** @}*/
 
+
 /*!
  * @brief Flags that control logging format
  */
 enum flags {
 	SELOG_FLAG_ENABLED = 1 << 0,
 	SELOG_FLAG_TIME = 1 << 1,
-	SELOG_FLAG_COLOR = 1 << 2,
-	SELOG_FLAG_FUNCTION = 1 << 3,
+	SELOG_FLAG_TIME_MODE = 1 << 2,
+	SELOG_FLAG_COLOR = 1 << 3,
+	SELOG_FLAG_FUNCTION = 1 << 4,
+};
+enum time_modes{
+	SELOG_TIME_MODE_EPOCH = !SELOG_FLAG_TIME_MODE,
+	SELOG_TIME_MODE_INIT = SELOG_FLAG_TIME_MODE,
+};
 
+enum {
 	SELOG_FLAG_ALL = SELOG_FLAG_ENABLED
 		| SELOG_FLAG_TIME
+		| SELOG_TIME_MODE_INIT
 #ifndef _WIN32
 		| SELOG_FLAG_COLOR
 #endif
