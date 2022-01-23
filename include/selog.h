@@ -19,6 +19,9 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <string.h>
+
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
 struct loglevel {
 	FILE *fp;
@@ -109,7 +112,7 @@ void selog_setup_default(void);
  * @brief Log formatted message according to flags set in loglevel
  *
  * @param[in]	loglevel	Pointer to loglevel struct
- * @param[in]	file		__FILE__ macro
+ * @param[in]	file		__FILENAME__ macro
  * @param[in]	line		__LINE__ macro
  * @param[in]	function	__func__ macro
  * @param[in]	fmt		Format specification
@@ -122,7 +125,7 @@ int selog_logf(struct loglevel *l, const char *file, int line, const char *funct
  * @brief Log formatted message according to flags set in loglevel
  *
  * @param[in]	loglevel	Pointer to loglevel struct
- * @param[in]	file		__FILE__ macro
+ * @param[in]	file		__FILENAME__ macro
  * @param[in]	line		__LINE__ macro
  * @param[in]	function	__func__ macro
  * @param[in]	fmt		Format specification
@@ -158,12 +161,12 @@ int selog_vlogf(struct loglevel *l, const char *file, int line, const char *func
  * Convenience macros used to log a message to pre-defined loglevel
  * @{
  */
-#define log_trace(...)		selog_logf(selog_loglevel_trace, __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define log_debug(...)		selog_logf(selog_loglevel_debug, __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define log_info(...)		selog_logf(selog_loglevel_info, __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define log_warning(...)	selog_logf(selog_loglevel_warning, __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define log_error(...)		selog_logf(selog_loglevel_error, __FILE__, __LINE__, __func__, __VA_ARGS__)
-#define log_fatal(...)		selog_logf(selog_loglevel_fatal, __FILE__, __LINE__, __func__, __VA_ARGS__)
+#define log_trace(...)		selog_logf(selog_loglevel_trace, __FILENAME__, __LINE__, __func__, __VA_ARGS__)
+#define log_debug(...)		selog_logf(selog_loglevel_debug, __FILENAME__, __LINE__, __func__, __VA_ARGS__)
+#define log_info(...)		selog_logf(selog_loglevel_info, __FILENAME__, __LINE__, __func__, __VA_ARGS__)
+#define log_warning(...)	selog_logf(selog_loglevel_warning, __FILENAME__, __LINE__, __func__, __VA_ARGS__)
+#define log_error(...)		selog_logf(selog_loglevel_error, __FILENAME__, __LINE__, __func__, __VA_ARGS__)
+#define log_fatal(...)		selog_logf(selog_loglevel_fatal, __FILENAME__, __LINE__, __func__, __VA_ARGS__)
 /** @}*/
 
 #endif
