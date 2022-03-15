@@ -144,7 +144,6 @@ static int log_to_output(struct message *m)
 		error = size;
 	ret += size;
 
-	fflush(l->fp);
 	/* Unlock mutex */
 	unlock();
 
